@@ -70,8 +70,10 @@ llm_agent = Agent(
     name="LLM Question Generator",
     instructions="""
 You are a psychological assessment assistant. Your job is to:
-1. Generate one short, open-ended question that helps reveal if a person matches the following personality trait: {profile}.
-2. The question should be about everyday life, not clinical, and phrased neutrally. Example topics: work, social life, routines, preferences.
+1. Generate one short, open-ended question that helps reveal if a person matches the following personality 
+    trait: {profile}.
+2. The question should be about everyday life, not clinical, and phrased neutrally. Example topics: work, social life, 
+    routines, preferences.
 3. Ask only one question. Never mention any trait name in the question.
 4. Do not reference personality theory. Avoid closed (yes/no) questions.
 """,
@@ -100,7 +102,7 @@ def get_state(history):
 
 async def main():
     print(
-        "Welcome to the RL Psychological Profiling Agent with LLM-generated questions!\nLet's have a quick conversation.")
+        "Welcome, let's have a quick conversation.")
     history = []
     for step in range(7):
         state = get_state(history)
@@ -114,7 +116,8 @@ async def main():
         print(f"[Agent] Q{step + 1}: {question}")
         answer = input("Your answer: ")
         # Auto-evaluate user's answer using classifier LLM
-        classify_prompt = f"User answer: {answer}\n\nWhich of these traits does this most reflect? Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism."
+        classify_prompt = (f"User answer: {answer}\n\nWhich of these traits does this most reflect? Openness, "
+                           f"Conscientiousness, Extraversion, Agreeableness, Neuroticism.")
         with trace("LLM answer classification"):
             classification_result = await Runner.run(llm_classifier, classify_prompt)
             classified_profile = classification_result.final_output.strip().split('\n')[0]
