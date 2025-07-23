@@ -14,6 +14,7 @@ if not OPENAI_API_KEY:
     print("Error: OPENAI_API_KEY environment variable is not set.")
     sys.exit(1)
 
+
 class RLProfilePolicy:
     def __init__(self, profiles, alpha=0.1, gamma=0.9, epsilon=0.2, policy_file="psych_policy.pkl"):
         self.profiles = profiles
@@ -50,6 +51,7 @@ class RLProfilePolicy:
                 self.q_table = defaultdict(float, qdict)
         except Exception:
             pass
+
 
 PSYCH_PROFILES = [
     "Openness",
@@ -91,11 +93,14 @@ You are a psychological traits classifier. Your job is to:
     handoff_description="Classify user answers into Big Five traits."
 )
 
+
 def get_state(history):
     return tuple(history[-3:]) if history else ("start",)
 
+
 async def main():
-    print("Welcome to the RL Psychological Profiling Agent with LLM-generated questions!\nLet's have a quick conversation.")
+    print(
+        "Welcome to the RL Psychological Profiling Agent with LLM-generated questions!\nLet's have a quick conversation.")
     history = []
     for step in range(7):
         state = get_state(history)
@@ -106,7 +111,7 @@ async def main():
         with trace("LLM question generation"):
             llm_result = await Runner.run(llm_agent, prompt.format(profile=profile))
             question = llm_result.final_output.strip().split('\n')[0]
-        print(f"[Agent] Q{step+1}: {question}")
+        print(f"[Agent] Q{step + 1}: {question}")
         answer = input("Your answer: ")
         # Auto-evaluate user's answer using classifier LLM
         classify_prompt = f"User answer: {answer}\n\nWhich of these traits does this most reflect? Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism."
@@ -129,6 +134,7 @@ async def main():
     final_state = get_state(history)
     best_profile_idx = policy.select_action(final_state)
     print(f"{PSYCH_PROFILES[best_profile_idx]}")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

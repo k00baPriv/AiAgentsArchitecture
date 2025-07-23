@@ -2,6 +2,7 @@ import pickle
 import os
 from agents import Agent, Runner, trace
 from dotenv import load_dotenv
+import asyncio
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -13,6 +14,7 @@ PSYCH_PROFILES = [
     "Agreeableness",
     "Neuroticism",
 ]
+
 
 class PolicyReader:
     def __init__(self, profiles, policy_file="psych_policy.pkl"):
@@ -40,6 +42,7 @@ class PolicyReader:
                 best_idx = idx
         return self.profiles[best_idx] if best_idx is not None else "Openness"
 
+
 # LLM agent for ad generation
 gen_ad_agent = Agent(
     name="LLM Home Ad Generator",
@@ -53,11 +56,11 @@ You are a creative real estate copywriter. Write a short (max 100 words) adverti
     handoff_description="Write personalized real estate ads based on dominant personality trait."
 )
 
-import asyncio
 
 def get_state_from_user():
     # In a real app, use saved last state. For demo, use start state
     return ("start",)
+
 
 async def main():
     reader = PolicyReader(PSYCH_PROFILES)
@@ -70,6 +73,7 @@ async def main():
         ad_text = ad_result.final_output.strip().split('\n')[0]
     print("\n[Personalized Home Advertisement]\n")
     print(ad_text)
+
 
 if __name__ == "__main__":
     asyncio.run(main())
