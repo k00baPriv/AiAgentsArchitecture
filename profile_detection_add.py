@@ -47,7 +47,8 @@ class PolicyReader:
 gen_ad_agent = Agent(
     name="LLM Home Ad Generator",
     instructions="""
-You are a creative real estate copywriter. Write a short (max 100 words) advertisement for a home, personalized for a person whose dominant personality trait is: {profile}.
+    You are a creative real estate copywriter. Write a short (max 100 words) advertisement for a  home, personalized  
+    for a  person whose dominant personality trait is: {profile}.
 - Highlight features that match this trait and would attract someone with this personality.
 - Make it engaging, positive, and lifestyle-focused.
 - Do not mention the trait or personality directly in the text.
