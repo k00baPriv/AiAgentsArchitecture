@@ -1,8 +1,8 @@
 import asyncio
 import os
 import sys
-import pickle
-import random
+import json
+import secrets
 from collections import defaultdict
 from dotenv import load_dotenv
 from agents import Agent, Runner, trace
@@ -30,7 +30,8 @@ class RLPreferencePolicy:
         q_table (defaultdict): Q-value table mapping (state, action) to value.
         policy_file (str): File to persist policy to/from.
     """
-    def __init__(self, styles, alpha=0.1, gamma=0.9, epsilon=0.1, policy_file="policy.pkl"):
+
+    def __init__(self, styles, alpha=0.1, gamma=0.9, epsilon=0.1, policy_file="policy.json"):
         self.styles = styles
         self.alpha = alpha
         self.gamma = gamma
@@ -49,8 +50,9 @@ class RLPreferencePolicy:
         Returns:
             int: Index of the chosen action.
         """
-        if random.random() < self.epsilon:
-            return random.randint(0, len(self.styles) - 1)
+        # Use secrets for random action selection (compliant with Bandit B311)
+        if secrets.randbelow(10000) < int(self.epsilon * 10000):
+            return secrets.randbelow(len(self.styles))
         qs = [self.q_table[(state, a)] for a in range(len(self.styles))]
         return int(qs.index(max(qs)))
 
@@ -70,21 +72,28 @@ class RLPreferencePolicy:
         self.save()
 
     def save(self):
-        """Save the Q-table to a file."""
+        """Save the Q-table to a JSON file."""
         try:
-            with open(self.policy_file, "wb") as f:
-                pickle.dump(dict(self.q_table), f)
+            # Convert tuple keys to strings for JSON serialization
+            serializable = {str(k): v for k, v in self.q_table.items()}
+            with open(self.policy_file, "w") as f:
+                json.dump(serializable, f)
         except Exception as e:
             print(f"[ERROR] Could not save RL policy: {e}")
 
     def load(self):
-        """Load the Q-table from a file if it exists."""
+        """Load the Q-table from a JSON file if it exists."""
         try:
-            with open(self.policy_file, "rb") as f:
-                qdict = pickle.load(f)
-                self.q_table = defaultdict(float, qdict)
-        except Exception:
-            pass
+            with open(self.policy_file, "r") as f:
+                loaded = json.load(f)
+                # Convert keys back to tuples (use ast.literal_eval for safety)
+                import ast
+                self.q_table = defaultdict(
+                    float,
+                    {ast.literal_eval(k): v for k, v in loaded.items()}
+                )
+        except Exception as e:
+            print(f"[WARN] Could not load RL policy: {e}")
 
 
 # Definition of the AI agent responsible for answering questions
