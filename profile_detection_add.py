@@ -1,5 +1,6 @@
-import pickle
 import os
+import json
+import ast
 from agents import Agent, Runner, trace
 from dotenv import load_dotenv
 import asyncio
@@ -17,16 +18,17 @@ PSYCH_PROFILES = [
 
 
 class PolicyReader:
-    def __init__(self, profiles, policy_file="psych_policy.pkl"):
+    def __init__(self, profiles, policy_file="psych_policy.json"):
         self.profiles = profiles
         self.policy_file = policy_file
         self.q_table = self.load()
 
     def load(self):
         try:
-            with open(self.policy_file, "rb") as f:
-                qdict = pickle.load(f)
-            return qdict
+            with open(self.policy_file, "r") as f:
+                qdict = json.load(f)
+            # Convert string keys back to tuple safely
+            return {ast.literal_eval(k): v for k, v in qdict.items()}
         except Exception as e:
             print(f"[ERROR] Could not load RL policy: {e}")
             return {}

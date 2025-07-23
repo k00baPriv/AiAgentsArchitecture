@@ -20,8 +20,12 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install linter
-        run: pip install flake8
+      - name: Install linters
+        run: |
+          pip install flake8 bandit
 
       - name: Run flake8 syntax check
         run: flake8 .
+
+      - name: Run Bandit security check
+        run: bandit -r .

@@ -139,3 +139,5 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific
+/psych_policy.pkl
+/psych_policy.json
